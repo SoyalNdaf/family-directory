@@ -8,7 +8,7 @@ const supabase = createClient(
 );
 
 const LetterheadHeader = ({ onAdminClick }) => (
-  <header className="w-full bg-white border-b border-slate-200 p-4 md:p-6 font-sans relative">
+  <header className="w-full bg-white border-b-2 border-slate-100 p-4 md:p-6 font-sans relative">
     <div className="max-w-7xl mx-auto">
       {/* Top Row: Reg No and Admin Icon */}
       <div className="flex justify-end items-center gap-4 mb-2">
@@ -17,18 +17,17 @@ const LetterheadHeader = ({ onAdminClick }) => (
         </p>
         <button 
           onClick={onAdminClick}
-          className="p-2 text-slate-300 hover:text-indigo-600 transition-all opacity-60 hover:opacity-100"
-          title="Admin Settings"
+          className="p-1 text-slate-300 hover:text-indigo-600 transition-all opacity-60 hover:opacity-100"
         >
           <Settings size={18} />
         </button>
       </div>
 
       {/* Main Content Row: Logo and Title */}
-      <div className="flex flex-col md:flex-row items-center md:items-center gap-4 md:gap-10">
+      <div className="flex flex-col md:flex-row items-center gap-4 md:gap-10">
         <div className="w-24 h-24 md:w-32 md:h-32 flex-shrink-0">
           <img 
-            src="https://appcdn.goqii.com/storeimg/58048_1778071550.png" 
+            src="https://appcdn.goqii.com/storeimg/2316_1778071871.png" 
             alt="Foundation Logo" 
             className="w-full h-full object-contain"
           />
@@ -38,7 +37,7 @@ const LetterheadHeader = ({ onAdminClick }) => (
           <h1 className="text-xl md:text-4xl font-black tracking-tight text-[#1E3A8A] uppercase leading-tight">
             Moradabad Mumbai Qureshi<br/>Ekta Foundation
           </h1>
-          <div className="mt-2 h-1 w-full bg-[#D1FAE5]"></div> {/* Light green line like the letterhead */}
+          <div className="mt-2 h-1.5 w-full bg-[#D1FAE5]"></div>
         </div>
       </div>
     </div>
@@ -135,22 +134,22 @@ export default function App() {
               <div className="p-4 bg-slate-50 border-b">
                 <input 
                   className="w-full p-3 border rounded-xl outline-none" 
-                  placeholder="Search families..." 
+                  placeholder="Search family by name or phone..." 
                   onChange={e => setSearchQuery(e.target.value)} 
                 />
               </div>
               <div className="overflow-x-auto">
                 <table className="w-full text-left">
                   <thead className="bg-slate-100 text-slate-500 text-[10px] font-black uppercase border-b">
-                    <tr><th className="p-4">HOF Name</th><th className="p-4">Mobile</th><th className="p-4 text-center">Size</th><th className="p-4 text-right">View</th></tr>
+                    <tr><th className="p-4">HOF Name</th><th className="p-4">Mobile</th><th className="p-4 text-center">Family Size</th><th className="p-4 text-right">Details</th></tr>
                   </thead>
                   <tbody>
                     {adminData.filter(f => f.hof_name?.toLowerCase().includes(searchQuery.toLowerCase()) || f.mobile_number.includes(searchQuery)).map(f => (
                       <tr key={f.id} className="border-b hover:bg-slate-50 cursor-pointer" onClick={() => setSelectedFamily(f)}>
                         <td className="p-4 font-bold">{f.hof_name}</td>
-                        <td className="p-4 text-sm">{f.mobile_number}</td>
+                        <td className="p-4 text-sm font-mono tracking-tighter">{f.mobile_number}</td>
                         <td className="p-4 text-center font-bold text-indigo-600">{f.family_members?.length || 0}</td>
-                        <td className="p-4 text-right text-indigo-600 font-bold text-xs">DETAILS</td>
+                        <td className="p-4 text-right text-indigo-600 font-bold text-xs uppercase">View</td>
                       </tr>
                     ))}
                   </tbody>
@@ -160,17 +159,18 @@ export default function App() {
           </div>
         </div>
         {selectedFamily && (
-          <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 z-50" onClick={() => setSelectedFamily(null)}>
+          <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4 z-50" onClick={() => setSelectedFamily(null)}>
             <div className="bg-white p-8 rounded-3xl max-w-2xl w-full max-h-[80vh] overflow-y-auto" onClick={e => e.stopPropagation()}>
               <h2 className="text-2xl font-black mb-6">{selectedFamily.hof_name}'s Family</h2>
               <div className="space-y-3">
                 {selectedFamily.family_members.map((m, i) => (
-                  <div key={m.id} className="flex items-center justify-between p-4 bg-slate-50 rounded-xl">
-                    <span className="font-bold">{i+1}. {m.member_name}</span>
-                    <span className="font-bold text-indigo-600">{m.gender} | {m.age} Yrs</span>
+                  <div key={m.id} className="flex items-center justify-between p-4 bg-slate-50 rounded-xl border border-slate-100">
+                    <span className="font-bold text-slate-800">{i+1}. {m.member_name}</span>
+                    <span className="font-bold text-indigo-700">{m.gender} | {m.age} Years</span>
                   </div>
                 ))}
               </div>
+              <button onClick={() => setSelectedFamily(null)} className="w-full mt-6 bg-slate-100 py-3 rounded-xl font-bold">Close Details</button>
             </div>
           </div>
         )}
@@ -184,75 +184,78 @@ export default function App() {
       
       <div className="py-8 px-4">
         <div className="max-w-xl mx-auto bg-white rounded-3xl shadow-xl overflow-hidden border">
-          <div className="bg-[#1E3A8A] p-4 text-white text-center font-black uppercase tracking-widest text-sm">
+          <div className="bg-[#1E3A8A] p-4 text-white text-center font-black uppercase tracking-widest text-sm shadow-inner">
             Family Data Registration
           </div>
 
           {submitted ? (
             <div className="p-16 text-center animate-in zoom-in duration-300">
               <CheckCircle className="w-16 h-16 text-green-500 mx-auto mb-4" />
-              <h2 className="text-2xl font-black">Registration Successful</h2>
-              <button onClick={() => window.location.reload()} className="mt-8 w-full bg-[#1E3A8A] text-white py-4 rounded-xl font-bold">Add Another</button>
+              <h2 className="text-2xl font-black text-slate-800">Registration Success</h2>
+              <p className="text-slate-500 mt-2">The family record has been saved.</p>
+              <button onClick={() => window.location.reload()} className="mt-8 w-full bg-[#1E3A8A] text-white py-4 rounded-xl font-bold transition-all hover:bg-black">Add Another Family</button>
             </div>
           ) : view === 'login' ? (
             <form onSubmit={handleLogin} className="p-8 space-y-5">
-              <h3 className="text-xl font-black text-center">Admin Login</h3>
-              <input required className="w-full p-4 bg-slate-50 border rounded-xl" placeholder="Username" onChange={e => setLoginCreds({...loginCreds, user: e.target.value})} />
-              <input required type="password" className="w-full p-4 bg-slate-50 border rounded-xl" placeholder="Password" onChange={e => setLoginCreds({...loginCreds, pass: e.target.value})} />
-              <button className="w-full bg-[#1E3A8A] text-white py-4 rounded-xl font-black shadow-lg">Login</button>
-              <button type="button" onClick={() => setView('form')} className="w-full text-slate-400 text-sm font-bold">Cancel</button>
+              <h3 className="text-xl font-black text-center text-slate-800">Admin Portal</h3>
+              <input required className="w-full p-4 bg-slate-50 border rounded-xl outline-none focus:ring-2 focus:ring-indigo-600 transition" placeholder="Username" onChange={e => setLoginCreds({...loginCreds, user: e.target.value})} />
+              <input required type="password" className="w-full p-4 bg-slate-50 border rounded-xl outline-none focus:ring-2 focus:ring-indigo-600 transition" placeholder="Password" onChange={e => setLoginCreds({...loginCreds, pass: e.target.value})} />
+              <button className="w-full bg-[#1E3A8A] text-white py-4 rounded-xl font-black shadow-lg transition-all hover:bg-black">Login to Admin</button>
+              <button type="button" onClick={() => setView('form')} className="w-full text-slate-400 text-sm font-bold">Back to Registration</button>
             </form>
           ) : (
             <form onSubmit={handleSubmit} className="p-6 md:p-8 space-y-6">
-              {error && <div className="p-4 bg-red-50 text-red-700 rounded-xl text-sm font-bold">{error}</div>}
+              {error && <div className="p-4 bg-red-50 text-red-700 rounded-xl text-sm font-bold border border-red-100 flex gap-2 items-center"><AlertCircle size={18}/> {error}</div>}
               
               <section className="space-y-4">
                 <label className="text-[10px] font-black uppercase text-indigo-800 tracking-widest border-b block pb-1">Head of Family</label>
-                <input required placeholder="HOF Name" className="w-full p-4 bg-slate-50 border rounded-xl outline-none focus:ring-2 focus:ring-indigo-600" onChange={e => updateMember(0, 'name', e.target.value)} />
+                <input required placeholder="HOF Full Name" className="w-full p-4 bg-slate-50 border rounded-xl outline-none focus:ring-2 focus:ring-indigo-600" onChange={e => updateMember(0, 'name', e.target.value)} />
                 <div className="grid grid-cols-2 gap-4">
-                  <input required type="number" placeholder="Age" className="w-full p-4 bg-slate-50 border rounded-xl" onChange={e => updateMember(0, 'age', e.target.value)} />
-                  <select className="w-full p-4 bg-slate-50 border rounded-xl" onChange={e => updateMember(0, 'gender', e.target.value)}>
+                  <input required type="number" placeholder="Age" className="w-full p-4 bg-slate-50 border rounded-xl outline-none" onChange={e => updateMember(0, 'age', e.target.value)} />
+                  <select className="w-full p-4 bg-slate-50 border rounded-xl outline-none" onChange={e => updateMember(0, 'gender', e.target.value)}>
                     <option>Male</option><option>Female</option>
                   </select>
                 </div>
               </section>
 
               <section className="space-y-4">
-                <label className="text-[10px] font-black uppercase text-indigo-800 tracking-widest border-b block pb-1">Contact Info</label>
-                <input required type="tel" placeholder="Mobile Number" className="w-full p-4 bg-slate-50 border rounded-xl focus:ring-2 focus:ring-indigo-600" onChange={e => setFamilyData({...familyData, mobile_number: e.target.value})} />
-                <textarea required placeholder="Address" className="w-full p-4 bg-slate-50 border rounded-xl" rows="2" onChange={e => setFamilyData({...familyData, address: e.target.value})} />
+                <label className="text-[10px] font-black uppercase text-indigo-800 tracking-widest border-b block pb-1">Contact & Address</label>
+                <input required type="tel" placeholder="Mobile Number" className="w-full p-4 bg-slate-50 border rounded-xl focus:ring-2 focus:ring-indigo-600 outline-none" onChange={e => setFamilyData({...familyData, mobile_number: e.target.value})} />
+                <textarea required placeholder="Correspondence Address" className="w-full p-4 bg-slate-50 border rounded-xl outline-none focus:ring-2 focus:ring-indigo-600" rows="2" onChange={e => setFamilyData({...familyData, address: e.target.value})} />
               </section>
 
               <section className="space-y-4">
                 <div className="flex justify-between items-center border-b pb-1">
                   <label className="text-[10px] font-black uppercase text-indigo-800 tracking-widest">Other Members ({members.length - 1})</label>
-                  <button type="button" onClick={addMemberRow} className="text-indigo-600 font-black text-xs">+ Add Member</button>
+                  <button type="button" onClick={addMemberRow} className="text-indigo-600 font-black text-xs hover:underline transition-all">+ Add Family Member</button>
                 </div>
-                {members.slice(1).map((m, i) => (
-                  <div key={i} className="p-4 bg-slate-50 rounded-xl grid grid-cols-3 gap-2 relative border">
-                    <input required placeholder="Name" className="p-2 border rounded text-sm bg-white" onChange={e => updateMember(i + 1, 'name', e.target.value)} />
-                    <input required type="number" placeholder="Age" className="p-2 border rounded text-sm bg-white" onChange={e => updateMember(i + 1, 'age', e.target.value)} />
-                    <select className="p-2 border rounded text-sm bg-white" onChange={e => updateMember(i + 1, 'gender', e.target.value)}>
-                      <option>Male</option><option>Female</option>
-                    </select>
-                    <button type="button" onClick={() => setMembers(members.filter((_, idx) => idx !== i + 1))} className="absolute -top-2 -right-2 bg-red-100 p-1 rounded-full text-red-600"><Trash2 size={12} /></button>
-                  </div>
-                ))}
+                <div className="space-y-3 max-h-60 overflow-y-auto pr-1">
+                  {members.slice(1).map((m, i) => (
+                    <div key={i} className="p-4 bg-slate-50 rounded-xl grid grid-cols-1 md:grid-cols-3 gap-2 relative border border-slate-100 group animate-in slide-in-from-right-2 duration-200">
+                      <input required placeholder="Name" className="p-2 border rounded bg-white text-sm outline-none focus:border-indigo-400" onChange={e => updateMember(i + 1, 'name', e.target.value)} />
+                      <input required type="number" placeholder="Age" className="p-2 border rounded bg-white text-sm outline-none focus:border-indigo-400" onChange={e => updateMember(i + 1, 'age', e.target.value)} />
+                      <select className="p-2 border rounded bg-white text-sm outline-none focus:border-indigo-400" onChange={e => updateMember(i + 1, 'gender', e.target.value)}>
+                        <option>Male</option><option>Female</option>
+                      </select>
+                      <button type="button" onClick={() => setMembers(members.filter((_, idx) => idx !== i + 1))} className="absolute -top-2 -right-2 bg-red-100 p-1 rounded-full text-red-600 shadow-sm opacity-0 group-hover:opacity-100 transition-all hover:bg-red-200"><Trash2 size={12} /></button>
+                    </div>
+                  ))}
+                </div>
               </section>
 
-              <button disabled={loading} className="w-full bg-[#1E3A8A] text-white p-5 rounded-2xl font-black shadow-lg">
-                {loading ? 'Processing...' : 'Submit to Foundation'}
+              <button disabled={loading} className="w-full bg-[#1E3A8A] text-white p-5 rounded-2xl font-black shadow-xl transition-all hover:bg-black active:scale-[0.98]">
+                {loading ? 'Processing...' : 'Register Family Info'}
               </button>
             </form>
           )}
         </div>
       </div>
       
-      <footer className="p-8 text-center bg-white border-t border-slate-100">
-        <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest mb-2">
-          Bandra (W), Mumbai - 400050 [cite: 23]
+      <footer className="p-8 text-center bg-white border-t border-slate-100 space-y-2">
+        <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">
+          Bandra (W), Mumbai - 400050
         </p>
-        <p className="text-[9px] text-slate-300">© 2026 MORADABAD MUMBAI QURESHI EKTA FOUNDATION [cite: 3]</p>
+        <p className="text-[9px] text-slate-300 font-bold uppercase tracking-tighter">© 2026 Moradabad Mumbai Qureshi Ekta Foundation</p>
       </footer>
     </div>
   );
