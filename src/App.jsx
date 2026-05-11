@@ -52,19 +52,37 @@ export default function App() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
-    setError('');
+    setError(''); // Clear previous errors
+    
     try {
       const { data: family, error: fErr } = await supabase.from('families').insert([{ ...familyData, hof_name: members[0].name }]).select().single();
       if (fErr) throw fErr;
+      
       const membersToInsert = members.map(m => ({
         family_id: family.id, member_name: m.name, age: parseInt(m.age), gender: m.gender,
         marital_status: m.marital_status, qualification: m.qualification, occupation: m.occupation
       }));
-      await supabase.from('family_members').insert(membersToInsert);
+      
+      const { error: mErr } = await supabase.from('family_members').insert(membersToInsert);
+      if (mErr) throw mErr;
+      
       setSubmitted(true);
+      window.scrollTo(0, 0);
+      
     } catch (err) {
-      setError(err.message);
-    } finally { setLoading(false); }
+      console.error("Database Error:", err);
+      // BULLETPROOF ERROR CATCHER
+      const errMsg = (err?.message || err?.details || err?.hint || String(err)).toLowerCase();
+      
+      if (errMsg.includes('unique') || errMsg.includes('duplicate') || err?.code === '23505') {
+        setError("This Mobile Number is already registered! Please use a different number.");
+      } else {
+        setError("An unexpected error occurred. Please try again.");
+      }
+      window.scrollTo(0, 0); // Scroll up to show the error
+    } finally { 
+      setLoading(false); 
+    }
   };
 
   const handleLogin = (e) => {
@@ -78,7 +96,6 @@ export default function App() {
     if (data) setAdminData(data);
   };
 
-  // FULLY RESTORED ADMIN DASHBOARD
   if (view === 'admin') {
     return (
       <div className="min-h-screen bg-slate-50 font-sans text-slate-900 pb-20">
@@ -168,7 +185,6 @@ export default function App() {
     );
   }
 
-  // STANDARD FORM VIEW REMAINS UNCHANGED
   return (
     <div className="min-h-screen bg-slate-50 font-sans antialiased pb-20">
       <header className="w-full bg-white border-b p-4 md:p-6 mb-8 shadow-sm">
@@ -212,7 +228,19 @@ export default function App() {
             </div>
           </form>
         ) : (
-          <form onSubmit={handleSubmit} className="p-6 md:p-10 space-y-12">
+          <form onSubmit={handleSubmit} className="p-6 md:p-10 space-y-12 relative">
+            
+            {/* UPDATED FRIENDLY ERROR MESSAGE */}
+            {error && (
+              <div className="bg-red-50 text-red-700 p-5 rounded-2xl border-2 border-red-200 flex items-start gap-4 mb-8 shadow-sm animate-in slide-in-from-top-4">
+                <AlertCircle size={24} className="mt-0.5 flex-shrink-0" />
+                <div>
+                  <h4 className="font-black uppercase tracking-widest text-xs mb-1">Registration Notice</h4>
+                  <p className="text-sm font-bold">{error}</p>
+                </div>
+              </div>
+            )}
+
             <section className="space-y-6">
               <div className="flex items-center gap-3 text-[#1E3A8A] mb-8 border-b-2 border-slate-100 pb-4">
                 <ClipboardList size={20}/> 
