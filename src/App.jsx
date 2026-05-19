@@ -37,10 +37,10 @@ export default function App() {
   const [selectedFamily, setSelectedFamily] = useState(null);
 
   const [familyData, setFamilyData] = useState({ mobile_number: '', postal_code: '', address: '' });
-  const [members, setMembers] = useState([{ name: '', age: '13', gender: 'Male', marital_status: 'Unmarried', qualification: 'SSC', occupation: 'Government Service' }]);
+  const [members, setMembers] = useState([{ name: '', age: '13', gender: 'Male', marital_status: 'Unmarried', qualification: 'SSC', occupation: 'Government Service', mobile_number: '' }]);
   const [loginCreds, setLoginCreds] = useState({ user: '', pass: '' });
 
-  const addMemberRow = () => setMembers([...members, { name: '', age: '13', gender: 'Male', marital_status: 'Unmarried', qualification: 'Below SSC', occupation: 'Private Service' }]);
+  const addMemberRow = () => setMembers([...members, { name: '', age: '13', gender: 'Male', marital_status: 'Unmarried', qualification: 'Below SSC', occupation: 'Private Service', mobile_number: '' }]);
   
   const updateMember = (index, field, value) => {
     const updated = [...members];
@@ -60,7 +60,8 @@ export default function App() {
       
       const membersToInsert = members.map(m => ({
         family_id: family.id, member_name: m.name, age: parseInt(m.age), gender: m.gender,
-        marital_status: m.marital_status, qualification: m.qualification, occupation: m.occupation
+        marital_status: m.marital_status, qualification: m.qualification, occupation: m.occupation,
+        mobile_number: m.mobile_number || null
       }));
       
       const { error: mErr } = await supabase.from('family_members').insert(membersToInsert);
@@ -171,6 +172,7 @@ export default function App() {
                       <p>Gender: <span className="font-black text-slate-900 block mt-1 text-sm">{m.gender}</span></p>
                       <p>Age: <span className="font-black text-slate-900 block mt-1 text-sm">{m.age}</span></p>
                       <p>Status: <span className="font-black text-slate-900 block mt-1 text-sm">{m.marital_status}</span></p>
+                      {m.mobile_number && <p className="col-span-2">Mobile: <span className="font-black text-slate-900 block mt-1 text-sm font-mono">{m.mobile_number}</span></p>}
                       <p className="col-span-2">Qualification: <span className="font-black text-slate-900 block mt-1 text-sm">{m.qualification}</span></p>
                       <p className="col-span-2">Occupation: <span className="font-black text-indigo-600 block mt-1 text-sm">{m.occupation}</span></p>
                     </div>
@@ -251,7 +253,7 @@ export default function App() {
                 <div className="md:col-span-2">
                   <FormField label="Full Name" icon={User}><input required placeholder="Enter Name" className="w-full h-full px-4 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-indigo-500 transition-all" value={members[0].name} onChange={e => updateMember(0, 'name', e.target.value)} /></FormField>
                 </div>
-                <FormField label="Mobile" icon={Phone}><input required placeholder="Number" className="w-full h-full px-4 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-indigo-500 transition-all" onChange={e => setFamilyData({...familyData, mobile_number: e.target.value})} /></FormField>
+                <FormField label="Mobile" icon={Phone}><input required placeholder="Number" className="w-full h-full px-4 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-indigo-500 transition-all" onChange={e => { setFamilyData({...familyData, mobile_number: e.target.value}); updateMember(0, 'mobile_number', e.target.value); }} /></FormField>
                 <FormField label="PIN Code" icon={MapPin}><input required placeholder="Area PIN" className="w-full h-full px-4 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-indigo-500 transition-all" onChange={e => setFamilyData({...familyData, postal_code: e.target.value})} /></FormField>
               </div>
 
@@ -280,8 +282,11 @@ export default function App() {
                   <div key={i} className="pt-10 p-6 md:p-8 bg-slate-50/50 rounded-3xl border border-slate-200 relative space-y-8 shadow-sm">
                     <button type="button" onClick={() => setMembers(members.filter((_, idx) => idx !== i + 1))} className="absolute top-4 right-4 bg-red-50 p-2.5 rounded-full text-red-500 hover:bg-red-100 transition-colors z-10"><Trash2 size={18} /></button>
                     
-                    <FormField label="Member Name" icon={User}><input required className="w-full h-full px-4 bg-white border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-indigo-500 transition-all" value={m.name} onChange={e => updateMember(i + 1, 'name', e.target.value)} /></FormField>
-                    
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                      <FormField label="Member Name" icon={User}><input required className="w-full h-full px-4 bg-white border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-indigo-500 transition-all" value={m.name} onChange={e => updateMember(i + 1, 'name', e.target.value)} /></FormField>
+                      <FormField label="Mobile" icon={Phone}><input type="tel" placeholder="Mobile Number" className="w-full h-full px-4 bg-white border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-indigo-500 transition-all" value={m.mobile_number} onChange={e => updateMember(i + 1, 'mobile_number', e.target.value)} /></FormField>
+                    </div>
+
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                       <FormField label="Age"><input required type="number" min="0" className="w-full h-full px-4 bg-white border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-indigo-500 transition-all" value={m.age} onChange={e => updateMember(i + 1, 'age', e.target.value)} /></FormField>
                       <FormField label="Gender"><select className="w-full h-full px-4 bg-white border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-indigo-500 transition-all cursor-pointer" value={m.gender} onChange={e => updateMember(i + 1, 'gender', e.target.value)}><option>Male</option><option>Female</option></select></FormField>
